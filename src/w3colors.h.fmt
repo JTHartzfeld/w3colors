@@ -1,0 +1,42 @@
+#ifndef __W3COLORS_H__
+#define __W3COLORS_H__
+
+#define TRUE (1==1)
+#define FALSE (!TRUE)
+
+#include <ctype.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdarg.h>
+#include <string.h>
+#include <ncurses.h>
+
+
+    #ifndef __W3COLORS_C__
+        #ifdef __cplusplus
+            #define EXTERN extern "C" 
+        #else
+            #define EXTERN extern
+        #endif
+    #else
+        #define EXTERN
+    #endif 
+
+    
+typedef struct W3COLORGROUP_t {int len; const char** aliases;} W3ColorGroup;
+
+EXTERN int num_w3colors;
+EXTERN int max_w3colors;
+
+EXTERN int init_w3colors();
+EXTERN int free_w3colors();
+EXTERN int add_w3color(W3ColorGroup* colorgroup, int r, int g, int b);
+EXTERN int add_w3color_alias(const char* name, const char* alias);
+EXTERN W3ColorGroup* new_w3colorgroup(int count,...);
+EXTERN short w3color(const char* name);
+EXTERN W3ColorGroup** w3colorgroups;
+
+{DEFINITIONS_BLOCK}
+
+#define ADTNL_COLORS_COUNT 16
+#endif

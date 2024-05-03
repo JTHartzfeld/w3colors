@@ -1,0 +1,95 @@
+#!/bin/env python
+'''An internal utility to generate the requisite source files.
+    usage:
+        python -m mksrc w3colors
+        
+'''
+
+class Color:
+    def __init__(self, name, hexrgb):
+        self.name = name.lower()
+        self.squishname = self.name.replace(' ','');
+        self.macroname = f'COLOR_{"".join(self.name.upper().split())}'
+        self.hexrgb = hexrgb
+        self.hexrgbtup = tuple(f'0x{i}' for i in(self.hexrgb[0:2], self.hexrgb[2:4], self.hexrgb[4:6]))
+        self.rgbtup = tuple(int(n, base=16) for n in self.hexrgbtup)
+        self.scaledrgb = tuple(min(1000, round(n*(1000/255))) for n in self.rgbtup)
+        self.scaledR = self.scaledrgb[0]
+        self.scaledG = self.scaledrgb[1]
+        self.scaledB = self.scaledrgb[2]
+        
+
+    def __repr__(self):
+        return f'{self.macroname}={self.scaledrgb}'
+
+def load_colors(path):
+    colors = []
+    with open(path, 'r') as F:
+        for line in F:
+            if not line.startswith('//'):
+                tmp = [txt.strip() for txt in line.split('#')]
+                if len(tmp)==2:
+                    colors.append(Color(tmp[0], tmp[1]))
+    return colors
+
+def group_duplicates(rawcolors):
+    output_groups = []
+    output_values = []
+    while len(rawcolors):
+        ov = rawcolors[0].scaledrgb
+        group=[]
+        if ov not in output_values:
+            output_values.append(ov)
+            group.append(rawcolors.pop(0))
+            output_groups.append(group)
+        else:
+            output_groups[output_values.index(ov)].append(rawcolors.pop(0))
+
+    return output_groups
+            
+        
+        
+def main(argv=['w3colors']):
+    symbolname = argv[0]
+    uppersymbol= symbolname.upper()
+    
+    colors=load_colors(f'src/{symbolname}.txt')
+    grouped_colors = group_duplicates(colors)
+   
+    definitions = []
+    for i in range(len(grouped_colors)):
+        for j in range(len(grouped_colors[i])):
+            c=grouped_colors[i][j]
+            definitions.append(f'#define {c.macroname:<30}{i:>4} // '+(
+                f'#{c.hexrgb} =>({c.scaledR:>4},{c.scaledG:>4},{c.scaledB:>4})' if j==0 else f'^^ DUPLICATE of {grouped_colors[i][0].macroname} ^^'
+                )+'\n')
+                       
+    definitions.append(f'#define {"COLORS_COUNT":<30}{len(grouped_colors):>4}\n')
+    definition_text = ''.join(definitions)
+    with open(f'src/{symbolname}.h.fmt') as f:
+        tmplt = f.read().replace('{DEFINITIONS_BLOCK}', definition_text)			        
+        with open(f'src/{symbolname}.h', 'w') as g:
+            g.write(tmplt)
+
+    initializations = []
+    w3colornames = []
+    for i in range(len(grouped_colors)):
+        c = grouped_colors[i][0]
+        initializations.append(f'        init_color({(c.macroname+","):<30}{c.scaledR:>4},{c.scaledG:>4},{c.scaledB:>4});')
+        sourcetext = f'        w3colorgroups[{i}]='+f'new_w3colorgroup({len(grouped_colors[i])}, '+', '.join([
+            f'"{color.name}"' for color in grouped_colors[i]
+            ])+');\n'
+        w3colornames.append(sourcetext)
+        
+    with open(f'src/{symbolname}.c.fmt') as f:
+        tmplt = f.read().replace(
+            '{INITIALIZATIONS_BLOCK}', '\n'.join(initializations)).replace(
+                '{W3COLORNAMES}', ''.join(w3colornames))
+                
+        outpath = f'src/{symbolname}.c';
+        with open(outpath, 'w') as g:
+            g.write(tmplt)
+
+if __name__=='__main__':
+    import sys
+    main(sys.argv[1:] if len(sys.argv)>1 else ['w3colors'])

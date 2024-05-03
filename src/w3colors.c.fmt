@@ -1,0 +1,92 @@
+#define __W3COLORS_C__
+#include "w3colors.h"
+
+W3ColorGroup* new_w3colorgroup(int count, ...) {
+    va_list names;
+    va_start(names, count);
+    const char** output_names = calloc(count, sizeof(const char*));
+    for(int i=0; i<count; i++) {
+        output_names[i]=va_arg(names, const char*);
+    }
+    va_end(names);
+    
+    W3ColorGroup* output 	= calloc(1, sizeof(W3ColorGroup));
+    output->len 			= count;
+    output->aliases 		= output_names;
+    
+    return output;
+}
+
+
+
+char* tosquishname(const char* name) {
+    int len = strlen(name);
+    char* buffer = calloc(len, sizeof((char)' '));
+    int j=0;
+    for(int i=0; i<len; i++) {
+        if((name[i]==' ') || (name[i]=='-'))
+            continue;
+        else {
+            buffer[j++]=(char)tolower((int)name[i]);
+        }
+    }
+    buffer[j]='\0';
+    buffer = realloc(buffer, ++j);
+    return buffer;
+}
+
+int add_w3color(W3ColorGroup* colorgroup, int r, int g, int b) {
+    
+    return 0;
+}
+
+int add_w3color_alias(const char* name, const char* alias) {
+
+    return 0;
+}
+
+short w3color(const char* name) {
+    int len;
+    char* squishname = tosquishname(name);
+    char* tmp = calloc(1,1);
+    for(short i=0; i<num_w3colors; i++) {
+        len = w3colorgroups[i]->len;
+        for(short j=0; j<len; j++) {
+            tmp = tosquishname(w3colorgroups[i]->aliases[j]);
+            if(strcmp(squishname, tmp)==0) {
+                free(tmp);
+                return i;
+            }
+            free(tmp);
+        }
+    }
+    free(squishname);
+    return -1;
+}
+
+int init_w3colors() {
+    if(has_colors() && can_change_color()) {
+		start_color();
+	
+	// Initialize all the colors.
+{INITIALIZATIONS_BLOCK}
+
+	// Initialize the w3colorgroups array
+	    max_w3colors = COLORS_COUNT + ADTNL_COLORS_COUNT;
+    	num_w3colors = COLORS_COUNT;
+    	w3colorgroups = calloc(max_w3colors, sizeof(W3ColorGroup*));
+{W3COLORNAMES}
+    } else
+        return FALSE;
+    return TRUE;
+}
+
+int free_w3colors() {
+    for(int i = 0; i<num_w3colors; i++) {
+        free(w3colorgroups[i]);
+    }
+    free(w3colorgroups);
+    return 0;
+}
+
+#undef __W3COLORS_C__
