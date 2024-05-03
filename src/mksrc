@@ -1,4 +1,0 @@
-#!/bin/bash
-rm -R -f ./__pycache__ ./w3colors.h ./w3colors.c ./*~
-python -m mksrc w3colors
-rm -R ./__pycache__
