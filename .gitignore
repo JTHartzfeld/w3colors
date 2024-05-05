@@ -1,6 +1,8 @@
 # Backup files
 **~
 README.old.md
+*.backup
+
 
 # Prerequisites
 *.d
