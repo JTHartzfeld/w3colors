@@ -37,17 +37,6 @@ the **w3color()** function, **init\_w3colors()** function must be called.
 ```
 
 # INSTALLATION
-
-## Prerequisites
-In order to compile & build the library, you'll need a few
-packages to be installed.  They are: 
- - gcc
- - make
- - ncurses5-dev
- - python3, and
- - pandoc
-
-## Acutally Install
 Installation on a typical \*n\*x system is just the following three commands.
 ```
  user@box:~/projects $ git clone github.com/JTHartzfeld/w3colors.git
