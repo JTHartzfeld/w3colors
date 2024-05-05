@@ -1,16 +1,26 @@
 #define __W3COLORS_C__
+#include <stdlib.h>
 #include "w3colors.h"
 
 W3ColorGroup* new_w3colorgroup(int count, ...) {
+    if(count<1)
+        return NULL;
+    
     va_list names;
     va_start(names, count);
-    const char** output_names = calloc(count, sizeof(const char*));
+    const char** output_names = (const char**)calloc(count, sizeof(const char*));
+    if (output_names == NULL)
+        return (W3ColorGroup*)NULL;
+        
     for(int i=0; i<count; i++) {
         output_names[i]=va_arg(names, const char*);
     }
     va_end(names);
     
-    W3ColorGroup* output 	= calloc(1, sizeof(W3ColorGroup));
+    W3ColorGroup* output 	= (W3ColorGroup*)calloc(1, sizeof(W3ColorGroup));
+    if (output == NULL)
+        return output;
+        
     output->len 			= count;
     output->aliases 		= output_names;
     
@@ -21,7 +31,10 @@ W3ColorGroup* new_w3colorgroup(int count, ...) {
 
 char* tosquishname(const char* name) {
     int len = strlen(name);
-    char* buffer = calloc(len, sizeof((char)' '));
+    char* buffer = (char*)calloc(len, sizeof((char)' '));
+    if (buffer==NULL)
+        return buffer;
+    
     int j=0;
     for(int i=0; i<len; i++) {
         if((name[i]==' ') || (name[i]=='-'))
@@ -31,18 +44,59 @@ char* tosquishname(const char* name) {
         }
     }
     buffer[j]='\0';
-    buffer = realloc(buffer, ++j);
+    buffer = (char*)reallocarray(buffer, ++j, sizeof((char)' '));
     return buffer;
 }
 
-int add_w3color(W3ColorGroup* colorgroup, int r, int g, int b) {
-    
-    return 0;
+int add_w3color(const char* name, int r, int g, int b) {
+    if (w3color(name)>=0)
+        return set_w3color(name, r, g, b);
+        
+    if (num_w3colors+1 == max_w3colors) {
+        max_w3colors += ADTNL_COLORS_COUNT;
+        W3ColorGroup** colorgroups = (W3ColorGroup**)reallocarray(w3colorgroups, 
+                                        max_w3colors, 
+                                        sizeof(W3ColorGroup*)
+                    );
+        if (colorgroups==NULL)
+            return FALSE;
+        w3colorgroups = colorgroups;
+    }
+    w3colorgroups[num_w3colors++] = new_w3colorgroup(1, name);
+    return TRUE;
 }
 
-int add_w3color_alias(const char* name, const char* alias) {
+int set_w3color(const char* name, int r, int g, int b) {
+    int i = w3color(name);
+    if (i < 0)
+        if (add_w3color(name, r, g, b) == FALSE)
+            return FALSE;
+            
+    init_color(w3color(name), r, b, g);
+    return TRUE;
+}
+int set_w3color_256(const char* name, int r, int g, int b) {
+    return set_w3color(name, 
+                (int)(1000*r)/255,
+                (int)(1000*g)/255,
+                (int)(1000*b)/255);
+}
 
-    return 0;
+int add_w3color_alias(const char* name, const char* alias) {    
+    int i = w3color(name);
+    if (i<0)
+        return FALSE;
+    int j = (w3colorgroups[i]->len)++;
+    const char** aliases = reallocarray(w3colorgroups[i]->aliases,
+                                        j+1, 
+                                        sizeof(W3ColorGroup*));
+    if (aliases != NULL)
+        w3colorgroups[i]->aliases = aliases;
+    else
+        return FALSE;
+            
+    w3colorgroups[i]->aliases[j]=alias;
+    return TRUE;
 }
 
 short w3color(const char* name) {

@@ -91,15 +91,24 @@ be called.
 
 ## Initializing the library:
 ```c
-initscr();
-//...
-init_w3colors();
+initscr();    		/* from <ncurses.h> */
+init_w3colors(); 	/* from <w3colors.h> */
 //...
 ```
 
-## Initializing a color pair:
+## Initializing color pairs:
 ```c
+/* Using classic macro definitions */
 init_pair(1, COLOR_FORESTGREEN, COLOR_KHAKI);
+
+/* Using the **w3color()** function */
+init_pair(2, w3color("light-goldenrod-yellow"), \
+          	w3color("deep Purple");
+
+init_pair(3, w3color("Dark GREY"), \
+			w3color("Light Grey");
+/* The name compared has all spaces and '-'s re-
+moved and is converted to lower case beforehand.*/
 ```
 
 

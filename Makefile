@@ -4,7 +4,7 @@
 CC = gcc
 
 # Compiler flags
-CFLAGS = -Wall -std=c99
+CFLAGS = -Wall -std=gnu17
 
 # Directories
 SRC_DIR = src
