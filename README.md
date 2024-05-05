@@ -104,7 +104,7 @@ init_pair(1, COLOR_FORESTGREEN, COLOR_KHAKI);
 
 
 # COPYLEFT
-The w3colors library is MITvOC licensed and may be used as one\ 
+The w3colors library is MITvOC licensed and may be used as one\
 sees fit under the conditions thereof.  MITvOC is a grammatical\
 correction to the punctuation of the MIT license such that it is\
 more readily comprehensible upon first reading.
