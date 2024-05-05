@@ -1,4 +1,4 @@
-# MITvOC: MIT License (with Oxford Commas)
+# MIT*vOC*: MIT License (with Oxford Commas)
 ## Copyright (c) 2024 J.T. Hartzfeld
 
 Permission is hereby granted, free of charge, to any person \
