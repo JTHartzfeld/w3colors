@@ -11,7 +11,6 @@
 #include <string.h>
 #include <ncurses.h>
 
-
     #ifndef __W3COLORS_C__
         #ifdef __cplusplus
             #define EXTERN extern "C" 
@@ -30,7 +29,8 @@ EXTERN int max_w3colors;
 
 EXTERN int init_w3colors();
 EXTERN int free_w3colors();
-EXTERN int add_w3color(W3ColorGroup* colorgroup, int r, int g, int b);
+
+EXTERN int set_w3color(W3ColorGroup* colorgroup, int r, int g, int b);
 EXTERN int add_w3color_alias(const char* name, const char* alias);
 EXTERN W3ColorGroup* new_w3colorgroup(int count,...);
 EXTERN short w3color(const char* name);
